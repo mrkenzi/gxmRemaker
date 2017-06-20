@@ -20,7 +20,7 @@
                     <ul class="dropdown-menu">
                         <li><a href="/category/action-games">Action Games</a></li>
                         <li><a href="/category/adventure-games">Adventure Games</a></li>
-                        <li><a href="/category/fpc-games">FPS Games</a></li>
+                        <li><a href="/category/fps-games">FPS Games</a></li>
                         <li><a href="/category/racing-games">Racing Games</a></li>
                         <li><a href="/category/simulation-games">Simulation Games</a></li>
                         <li><a href="/category/strategy-games">Strategy Games</a></li>

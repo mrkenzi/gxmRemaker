@@ -68,7 +68,7 @@
             newGame.masonry({
                 itemSelector: '.new-game'
             });
-        },2000);
+        },500);
         $(function(){
             // Enables popover
             $("[data-toggle=popover]").popover();

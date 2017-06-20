@@ -10,6 +10,14 @@ use Illuminate\Support\Facades\DB;
 class GameController extends Controller
 {
     //
+    protected function _listAllGames(){
+        $allGames = DB::table('games')
+            ->join('game_category', 'games.game_category', '=', 'game_category.id')
+            ->where('games.game_active', '>', '0')
+            ->orderBy('games.game_name', 'asc')
+            ->paginate(50);
+        return view("listAllGames", ['allGames' => $allGames]);
+    }
     public function _viewGame(Request $rq)
     {
         $paramUrl = $rq->rqUrl;
@@ -17,6 +25,7 @@ class GameController extends Controller
             ->join('game_category', 'games.game_category', '=', 'game_category.id')
             ->where('games.game_url', $paramUrl)
             ->first();
+        $this->_updateView($itemGame->game_url);
         $relatedGames = DB::table('games')
             ->join('game_category', 'games.game_category', '=', 'game_category.id')
             ->where('games.game_category', $itemGame->game_category)
@@ -43,11 +52,49 @@ class GameController extends Controller
             ->select('games.*', 'game_category.*')
             ->limit(6)
             ->get();
-        return view('itemGame', ['itemGame'=> $itemGame,
+        return view('itemGame', ['itemGame' => $itemGame,
             'relatedGames' => $relatedGames,
             'popularGames' => $popularGames,
             'upcomingGames' => $upcomingGames
         ]);
+    }
+
+    protected function _updateView($urlGame)
+    {
+        DB::table('games')
+            ->where('game_url',$urlGame)
+            ->increment('count_view');
+    }
+
+    public function _category(Request $rq)
+    {
+        $checkExits = DB::table('game_category')
+            ->where('category_url', $rq->rqUrl)
+            ->where('category_active', 1)
+            ->count();
+        if ($checkExits > 0) {
+            $getCategoryid = DB::table('game_category')
+                ->where('category_url', $rq->rqUrl)
+                ->where('category_active', 1)
+                ->first();
+            $categoryGames = DB::table('games')
+                ->join('game_category', 'games.game_category', '=', 'game_category.id')
+                ->where('games.game_category', intval($getCategoryid->id))
+                ->where('games.game_active', '>', '0')
+                ->orderBy('games.created_at', 'desc')
+                ->paginate(20);
+            return view('listItem', ['listGames' => $categoryGames,
+                'categoryInfo' => $getCategoryid
+            ]);
+        } else {
+            $relatedGames = DB::table('games')
+                ->join('game_category', 'games.game_category', '=', 'game_category.id')
+                ->where('games.game_active', '>', '0')
+                ->where('games.upcoming', '>', '0')
+                ->orderBy(DB::raw('RAND()'))
+                ->paginate(12);
+            return view('notFound', ['title' => "URL Not Found", 'findMore' => $relatedGames]);
+        }
     }
 
     public function _homepage()
